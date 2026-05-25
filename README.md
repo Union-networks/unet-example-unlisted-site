@@ -43,10 +43,10 @@ NEXT_PUBLIC_UNET_SERVICE_ID=unet-example-unlisted-site
 NEXT_PUBLIC_UNET_ISSUER_BASE_URL=https://issuer.egress.live
 NEXT_PUBLIC_UNET_VERIFIER_BASE_URL=https://verifier.egress.live
 NEXT_PUBLIC_SITE_ORIGIN=https://unet-example-unlisted-site.vercel.app
-UNET_WEB_LOGIN_ASSERTION_SECRET=dev-web-login-assertion-secret
+UNET_WEB_LOGIN_ASSERTION_SECRET=<trust-plane web-login signing secret>
 ```
 
-`UNET_WEB_LOGIN_ASSERTION_SECRET` is the demo trust-plane assertion secret. Do not use that value for production.
+`UNET_WEB_LOGIN_ASSERTION_SECRET` must match the secret trust-plane signs web-login assertions with. In the demo trust-plane, the signer uses `WEB_LOGIN_ASSERTION_SECRET` when set, otherwise it falls back to `PROOF_JWS_HMAC_SECRET`, and only then to the dev default. If Vercel shows `invalid_login_assertion_signature`, this value does not match trust-plane. Do not use the dev default for production.
 
 ## U-net Registration Requirement
 
