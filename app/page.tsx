@@ -147,9 +147,20 @@ export default function Home() {
 
   const requestAgeCheck = async () => {
     setVerificationState('creating');
-    setVerificationMessage('Finding the active over-18 check...');
+    setVerificationMessage(isMiniapp ? 'Asking U-net to review the over-18 proof request...' : 'Finding the active over-18 check...');
     setVerificationQr('');
     try {
+      if (isMiniapp) {
+        const proof = await callUnetHost<{
+          aggregateOutcome?: 'passed' | 'warning' | 'failed';
+          status?: string;
+          result?: { aggregateOutcome?: 'passed' | 'warning' | 'failed'; status?: string };
+        }>('host.requestVerification', { requestedChecks: ['age_over_18'] });
+        const outcome = proof.aggregateOutcome ?? proof.result?.aggregateOutcome ?? (proof.status === 'verified' || proof.result?.status === 'verified' ? 'passed' : 'failed');
+        setVerificationState(outcome);
+        setVerificationMessage(outcome === 'passed' ? 'Age check passed. Premium perk unlocked.' : `Age check finished as ${outcome}.`);
+        return;
+      }
       const catalog = await listVerificationChecks({ query: 'age', limit: 20 }, { verifierBaseUrl });
       const ageCheck = catalog.checks.find((check) => check.requestType === 'age_over_18');
       if (!ageCheck) throw new Error('The over-18 check is not available from U-net right now.');
