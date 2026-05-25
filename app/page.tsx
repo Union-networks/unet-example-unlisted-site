@@ -12,7 +12,7 @@ import {
   pollVerificationResult,
 } from '@union-networks/verification';
 import QRCode from 'qrcode';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 declare global {
   interface Window {
@@ -86,6 +86,7 @@ export default function Home() {
   const [verificationQr, setVerificationQr] = useState('');
   const [verificationState, setVerificationState] = useState<VerificationView>('idle');
   const [verificationMessage, setVerificationMessage] = useState('');
+  const miniappAutoLoginStartedRef = useRef(false);
 
   useEffect(() => {
     setIsMiniapp(Boolean(window.ReactNativeWebView));
@@ -111,6 +112,12 @@ export default function Home() {
       setLoginBusy(false);
     }
   };
+
+  useEffect(() => {
+    if (!isMiniapp || session || loginBusy || miniappAutoLoginStartedRef.current) return;
+    miniappAutoLoginStartedRef.current = true;
+    void loginWithMiniappBridge();
+  }, [isMiniapp, loginBusy, session]);
 
   const loginWithQr = async () => {
     setLoginBusy(true);
